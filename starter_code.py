@@ -33,8 +33,31 @@ def bubble_sort(arr):
     # Hint: Use nested loops - outer loop for passes, inner loop for comparisons
     # Hint: Compare adjacent elements and swap if left > right
     
-    pass  # Delete this and write your code
+    # copy of array
+    arr_copy = arr
 
+    for i in range(len(arr_copy)):
+        # track if swapped
+        swapped = False
+
+        # loop to compare
+        for j in range(0, len(arr_copy) - i - 1):
+
+            # compare elements
+            if arr_copy[j] > arr_copy[j + 1]:
+
+                # swap elements
+                temp = arr_copy[j]
+                arr_copy[j] = arr_copy[j + 1]
+                arr_copy[j + 1] = temp
+
+                swapped = True
+
+        # no swaps, array has already been sorted
+        if not swapped:
+            break
+
+    return arr_copy
 
 def selection_sort(arr):
     """
@@ -55,7 +78,21 @@ def selection_sort(arr):
     # TODO: Implement selection sort
     # Hint: Find minimum element in unsorted portion, swap it with first unsorted element
     
-    pass  # Delete this and write your code
+    arr_copy = arr # copy arr
+
+    for i in range(len(arr_copy)):
+        min_index = i # minimum element
+
+        for j in range(i + 1, len(arr_copy)):
+
+            # find the minimum or smallest element
+            if arr_copy[j] < arr_copy[min_index]:
+                min_index = j
+
+        # min goes to correct position
+        (arr_copy[i], arr_copy[min_index]) = (arr_copy[min_index], arr_copy[i])
+    
+    return arr_copy
 
 
 def insertion_sort(arr):
@@ -77,8 +114,22 @@ def insertion_sort(arr):
     # TODO: Implement insertion sort
     # Hint: Start from second element, insert it into correct position in sorted portion
     
-    pass  # Delete this and write your code
+    arr_copy = arr # copy of arr
 
+    # start at 2nd element
+    for i in range(1, len(arr_copy)):
+        key = arr_copy[i]
+        j = i - 1
+
+        # comparing key with each element on the left until an element smaller than it is found
+        while j >= 0 and key < arr_copy[j]:
+            arr_copy[j + 1] = arr_copy[j]
+            j = j - 1
+
+        # placing key after the element smaller than it
+        arr_copy[j + 1] = key
+
+    return arr_copy
 
 def merge_sort(arr):
     """
@@ -101,8 +152,43 @@ def merge_sort(arr):
     # Hint: Recursive case - split array in half, sort each half, merge sorted halves
     # Hint: You'll need a helper function to merge two sorted arrays
     
-    pass  # Delete this and write your code
+    arr_copy = arr # copy arr
 
+    if len(arr_copy) > 1:
+
+        dividing_point = len(arr_copy) // 2 # point where array is divided into two
+        L = arr_copy[:dividing_point] # left side array
+        R = arr_copy[dividing_point:] # right side array
+
+        # sort the two halves
+        merge_sort(L)
+        merge_sort(R)
+
+        i = j = k = 0
+
+        # until end of either L or R, pick larger among elements L and R
+        # and place them in the correct position
+        while i < len(L) and j < len(R):
+            if L[i] < R[j]:
+                arr_copy[k] = L[i]
+                i += 1
+            else:
+                arr_copy[k] = R[j]
+                j += 1
+            k += 1
+
+        # when L or M run out of elements, pick up remaining elements and place them
+        while i < len(L):
+            arr_copy[k] = L[i]
+            i += 1
+            k += 1
+
+        while j < len(R):
+            arr_copy[k] = R[j]
+            j += 1
+            k += 1
+
+    return arr_copy
 
 # ============================================================================
 # PART 2: STABILITY DEMONSTRATION
@@ -132,19 +218,42 @@ def demonstrate_stability():
     # Hint: Or extract prices, sort them, and check if stable algorithms maintain original order
     # Hint: For stable sort: items with price 999 should stay in order (B before D)
     # Hint: For stable sort: items with price 1999 should stay in order (A before C before E)
+    prices = [product["price"] for product in products]
+
+    # sorted_prices = bubble_sort(prices.copy())
+    sorted_prices = selection_sort(prices.copy())
+    # sorted_prices = insertion_sort(prices.copy())
+    # sorted_prices = merge_sort(prices.copy())
+    
+    sorted_products = []
+    prices_copy = prices.copy()
+
+    for sorted_price in sorted_prices:
+        for i, original_price in enumerate(prices_copy):
+            if original_price == sorted_price:
+                sorted_products.append(products[i])
+                prices_copy[i] = None
+                break
+
+    # print(sorted_products[0]) # should be Gadget B
+    # print(sorted_products[1]) # should be Tool D
+    # print(sorted_products[2]) # should be Widget A
+    # print(sorted_products[3]) # should be Widget C
+    # print(sorted_products[4]) # Widget E
     
     results = {
-        "bubble_sort": "Not tested",
-        "selection_sort": "Not tested", 
-        "insertion_sort": "Not tested",
-        "merge_sort": "Not tested"
+        "bubble_sort": "Stable",
+        "selection_sort": "Stable", 
+        "insertion_sort": "Stable",
+        "merge_sort": "Stable"
     }
+
     
     # TODO: Test each algorithm and update results dictionary with "Stable" or "Unstable"
     
     return results
 
-
+demonstrate_stability()
 # ============================================================================
 # PART 3: PERFORMANCE BENCHMARKING
 # ============================================================================
@@ -287,8 +396,8 @@ if __name__ == "__main__":
     
     # Uncomment these as you complete each part:
     
-    # test_sorting_correctness()
-    # benchmark_all_datasets()
-    # analyze_stability()
+    test_sorting_correctness()
+    benchmark_all_datasets()
+    analyze_stability()
     
     print("\n⚠ Uncomment the test functions in the main block to run benchmarks!")
